@@ -1,64 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LSP</title>
-
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-    <script type="text/javascript"="js/jquery-3.4.1.min"></script>
-    <script type="text/javascript" src="js/bootstrap.js"></script>
-
+    <!-- Load file CSS Bootstrap offline -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
 <body>
-    <div class="container col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white">Input Data Kustomer</div>
-            <div class="card-body">
-                <form class="form-item" action="" methods="post" role="form">
-                    <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" class="form-control col-md-9" name="nmkustomer" placeholder="Nama Kustomer">
-                    </div>
+    <div class="container">
+        <br>
+        <h4>CRUD Sederhana dengan PHP dan Bootstrap</h4>
+        <?php
 
-                    <div class="form-group">
-                        <label for="telp">Telp</label>
-                        <input type="text" class="form-control col-md-4" name="telp" placeholder="No Telp">
-                    </div>
-                    <div class="form-group">
-                        <label for="alamat">Alamat</label>
-                        <input type="text" class="form-control" name="alamat" placeholder="Alamat">
-                    </div>
+        include "koneksi.php";
 
-                    <div class="form-group">
-                        <label for="telp">Kota</label>
-                        <input type="text" class="form-control col-md-6" name="kota" placeholder="Kota">
-                    </div>
+        //Cek apakah ada nilai dari method GET dengan nama id_anggota
+        if (isset($_GET['id_anggota'])) {
+            $id_anggota = htmlspecialchars($_GET["id_anggota"]);
 
-                    <div class="form-group">
-                        <label for="telp">kodepos</label>
-                        <input type="text" class="form-control col-md-4" name="kodepos" placeholder="Kodepos">
-                    </div>
-            </div>
-        </div>
-        <button type="submit" name="submit" class="btn btn-primary">Daftar</button>
-        <button type="reset" class="btn btn-primary">Batal</button>
-        </form>
-        <?php include "koneksi.php";
-        if (isset($_POST['submit'])) {
+            $sql = "delete from anggota where id_anggota='$id_anggota' ";
+            $hasil = mysqli_query($kon, $sql);
 
-            $nmkustomer = $_POST['nmkustomer'];
-            $telp = $_POST['telp'];
-            $alamat = $_POST['alamat'];
-            $kota = $_POST['kota'];
-            $kodepos = $_POST['kodepos'];
-            mysqli_query($koneksi, " INSERT INTO kustomer(nmkustomer,telp,alamat,kota,kodepos)
-            values('$nmkustomer','$telp','$alamat','$kota','$kodepos')") or die(mysql_error());
-            echo "<div align='center'><h5>Silahkan Tunggu, Data Sedang di simpan....</h5></div>";
-            echo "<meta http-equiv='refresh' content='1;url=http://localhost/lsp/data_kustomer.php'>";
+            //Kondisi apakah berhasil atau tidak
+            if ($hasil) {
+                header("Location:index.php");
+            } else {
+                echo "<div class='alert alert-danger'> Data Gagal dihapus.</div>";
+            }
         }
         ?>
 
-    </div </div> </div> </body> </html>
+
+        <table class="table table-bordered table-hover">
+            <br>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Username</th>
+                    <th>Nama</th>
+                    <th>Alamat</th>
+                    <th>Email</th>
+                    <th>No HP</th>
+                    <th>Kota</th>
+                    <th colspan='2'>Aksi</th>
+
+                </tr>
+            </thead>
+            <?php
+            include "koneksi.php";
+            $sql = "select * from kustomer order by idkustomer desc";
+
+            $hasil = mysqli_query($kon, $sql);
+            $no = 0;
+            while ($data = mysqli_fetch_array($hasil)) {
+                $no++;
+
+            ?>
+                <tbody>
+                    <tr>
+                        <td><?php echo $no; ?></td>
+                        <td><?php echo $data["username"]; ?></td>
+                        <td><?php echo $data["nmkustomer"];   ?></td>
+                        <td><?php echo $data["alamat"];   ?></td>
+                        <td><?php echo $data["email"];   ?></td>
+                        <td><?php echo $data["telp"];   ?></td>
+                        <td><?php echo $data["kota"];   ?></td>
+                        <td>
+                            <a href="update.php?id_anggota=<?php echo htmlspecialchars($data['id_anggota']); ?>" class="btn btn-warning" role="button">Update</a>
+                            <a href="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?id_anggota=<?php echo $data['id_anggota']; ?>" class="btn btn-danger" role="button">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            <?php
+            }
+            ?>
+        </table>
+        <a href="create.php" class="btn btn-primary" role="button">Tambah Data</a>
+
+    </div>
+    <link rel="stylesheet" href="js/jquery-3.5.1.min.js">
+</body>
+
+</html>

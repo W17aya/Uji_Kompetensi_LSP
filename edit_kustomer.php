@@ -1,71 +1,75 @@
-<?php
-include 'koneksi.php';
-$id = $_GET['idkostumer'] ? $_GET['idkustomer'] : "";
-$sql = mysqli_query($koneksi, "select * from kustomer where idkustomer='$id'");
-$row = mysqli_fetch_array($sql);
-?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LSP</title>
-
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-    <script type="text/javascript"="js/jquery-3.4.1.min"></script>
-    <script type="text/javascript" src="js/bootstrap.js"></script>
-
+    <title>Form Pendaftaran Anggota</title>
+    <!-- Load file CSS Bootstrap offline -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
 <body>
-    <div class="container col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white">Edit Data Kustomer</div>
-            <div class="card-body">
-                <form class="form-item" action="" methods="post" role="form">
-                    <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" class="form-control col-md-9" name="nmkustomer" placeholder="Nama Kustomer">
-                    </div>
+    <div class="container">
+        <?php
+        //Include file koneksi, untuk koneksikan ke database
+        include "koneksi.php";
+        //Fungsi untuk mencegah inputan karakter yang tidak sesuai
+        function input($data)
+        {
+            $data = trim($data);
+            $data = stripslashes($data);
+            $data = htmlspecialchars($data);
+            return $data;
+        }
+        //Cek apakah ada nilai yang dikirim menggunakan methos GET dengan nama id_anggota
+        if (isset($_GET['id_anggota'])) {
+            $id_anggota = input($_GET["id_anggota"]);
 
-                    <div class="form-group">
-                        <label for="telp">Telp</label>
-                        <input type="text" class="form-control col-md-4" name="telp" placeholder="No Telp">
-                    </div>
-                    <div class="form-group">
-                        <label for="alamat">Alamat</label>
-                        <input type="text" class="form-control" name="alamat" placeholder="Alamat">
-                    </div>
+            $sql = "select * from anggota where id_anggota=$id_anggota";
+            $hasil = mysqli_query($kon, $sql);
+            $data = mysqli_fetch_assoc($hasil);
+        }
+        //Cek apakah ada kiriman form dari method post
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-                    <div class="form-group">
-                        <label for="telp">Kota</label>
-                        <input type="text" class="form-control col-md-6" name="kota" placeholder="Kota">
-                    </div>
+            $id_anggota = htmlspecialchars($_POST["id_anggota"]);
+            $username = input($_POST["username"]);
+            $nama = input($_POST["nama"]);
 
-                    <div class="form-group">
-                        <label for="telp">kodepos</label>
-                        <input type="text" class="form-control col-md-4" name="kodepos" placeholder="Kodepos">
-                    </div>
-            </div>
-        </div>
-        <button type="submit" name="submit" class="btn btn-primary">Daftar</button>
-        <button type="reset" class="btn btn-primary">Batal</button>
-        </form>
-        <?php include "koneksi.php";
-        if (isset($_POST['submit'])) {
+            //Query update data pada tabel anggota
+            $sql = "update anggota set
+			username='$username',
+			nama='$nama',
+			
+			where id_anggota=$id_anggota";
 
-            $nmkustomer = $_POST['nmkustomer'];
-            $telp = $_POST['telp'];
-            $alamat = $_POST['alamat'];
-            $kota = $_POST['kota'];
-            $kodepos = $_POST['kodepos'];
-            mysqli_query($koneksi, " INSERT INTO kustomer(nmkustomer,telp,alamat,kota,kodepos)
-            values('$nmkustomer','$telp','$alamat','$kota','$kodepos')") or die(mysql_error());
-            echo "<div align='center'><h5>Silahkan Tunggu, Data Sedang di simpan....</h5></div>";
-            echo "<meta http-equiv='refresh' content='1;url=http://localhost/lsp/data_kustomer.php'>";
+            //Mengeksekusi atau menjalankan query diatas
+            $hasil = mysqli_query($kon, $sql);
+            //Kondisi apakah berhasil atau tidak dalam mengeksekusi query diatas
+            if ($hasil) {
+                header("Location:index.php");
+            } else {
+                echo "<div class='alert alert-danger'> Data Gagal diupdate.</div>";
+            }
         }
         ?>
+        <h2>Update Data</h2>
 
-    </div </div> </div> </body> </html>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" name="username" class="form-control" value="<?php echo $data['username']; ?>" placeholder="Masukan Username" required />
+            </div>
+
+            <div class="form-group">
+                <label>Nama:</label>
+                <input type="text" name="nama" class="form-control" value="<?php echo $data['nama']; ?>" placeholder="Masukan Nama" required />
+            </div>
+            <input type="hidden" name="id_anggota" value="<?php echo $data['id_anggota']; ?>" />
+
+            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <link rel="stylesheet" href="js/jquery-3.5.1.min.js">
+</body>
+
+</html>

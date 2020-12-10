@@ -1,5 +1,11 @@
 <?php
-$koneksi = mysqli_connect("Localhost", "root", "", "db_lsp");
-if (mysqli_connect_error()) {
-    echo "Koneksi Gagal:" . mysqli_connect_error();
+
+$host="localhost";
+$user="root";
+$password="";
+$db="db_lsp";
+
+$kon = mysqli_connect($host,$user,$password,$db);
+if (!$kon){
+	  die("Koneksi gagal:".mysqli_connect_error());
 }
